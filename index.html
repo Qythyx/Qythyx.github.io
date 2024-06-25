@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Wordle Solver</title>
+		<script type="module">
+			fetch('https://github.com/Qythyx/Wordle/raw/master/solutions.txt').then(
+				(data) => (document.querySelector('#text').innerHTML = data)
+			);
+		</script>
+	</head>
+	<body>
+		<p id="text">Wordle Solver</p>
+	</body>
+</html>
