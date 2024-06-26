@@ -1,14 +1,137 @@
 <!doctype html>
 <html>
 	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 		<title>Wordle Solver</title>
 		<script type="module">
-			fetch('./solutions.txt').then(
-				(data) => (document.querySelector('#text').innerHTML = data)
-			);
+			import solver from './Loader.js';
+			const input = document.querySelector('#input');
+			const suggestions = document.querySelector('#suggestions');
+
+			function append(type, text) {
+				const ele = document.createElement(type);
+				ele.innerHTML = text;
+				suggestions.appendChild(ele);
+				return ele;
+			}
+
+			function showSuggestions() {
+				suggestions.innerHTML = '';
+				const guesses = solver.GetBestGuesses(0.62, 0.5, 9);
+				append('p', `Currently ${solver.WordCount} words, new letters guess is <c>${guesses.newLetters}</c>`);
+				const typeLength = Math.max(...guesses.guessLists.map((g) => g.Name.length));
+				for (const guessList of guesses.guessLists.toReversed()) {
+					const strat = append('p', guessList.Name);
+					strat.className = 'rankedStrategy';
+					const text = append('p', guessList.Guesses.map((g) => `${g.Word} ${g.Score}`).join('<br>'));
+					text.className = 'rankedList';
+				}
+			}
+
+			function handleInput(keyboard, action) {
+				const process = () => {
+					action();
+					showSuggestions();
+					input.style.display = 'none';
+				};
+				input.onkeydown = (event) => {
+					if (event.key === 'Enter') {
+						process();
+					}
+				};
+				input.style.display = 'block';
+				input.type = keyboard;
+				input.value = '';
+				input.focus();
+			}
+
+			showSuggestions();
+
+			document.querySelector('#misplaced').onclick = () =>
+				handleInput('url', () => solver.SetIncorrectlyPositionedLetters(input.value));
+
+			document.querySelector('#positioned').onclick = () =>
+				handleInput('url', () => solver.SetPositionedLetters(input.value));
+
+			document.querySelector('#excluded').onclick = () =>
+				handleInput('url', () => solver.SetExcludedLetters(input.value));
+
+			document.querySelector('#pattern').onclick = () =>
+				handleInput('number', () =>
+					solver.AddRequiredPattern(
+						input.value.split(',').map((pattern) => {
+							const pair = pattern.split('x');
+							return [pair[0], pair.length === 1 ? 1 : parseInt(pair[1])];
+						})
+					)
+				);
 		</script>
+		<style>
+			* {
+				font-family: 'Helvetica Neue', sans-serif;
+				font-size: 13pt;
+			}
+
+			body {
+				display: flex;
+				flex-direction: column;
+				padding: 0;
+			}
+
+			button {
+				font-size: 11pt;
+				margin: 0 -1px;
+				padding: 0;
+				/* text-indent: -6px; */
+			}
+
+			c {
+				font-family: monospace;
+			}
+
+			.header {
+				flex-direction: row;
+				display: flex;
+				gap: 1px;
+			}
+
+			.header * {
+				flex: 1;
+			}
+
+			#input {
+				display: none;
+				flex: 1;
+				font-family: monospace;
+				font-size: 20pt;
+				text-align: center;
+			}
+
+			.rankedList {
+				column-count: 3;
+				font-family: monospace;
+				margin-top: 0;
+			}
+
+			.rankedStrategy {
+				font-weight: bold;
+				margin: 0;
+			}
+
+			#suggestions {
+				max-height: 100vh;
+				overflow: auto;
+			}
+		</style>
 	</head>
 	<body>
-		<p id="text">Wordle Solver</p>
+		<div class="header">
+			<button id="misplaced">Misplaced</button>
+			<button id="positioned">Positioned</button>
+			<button id="excluded">Excluded</button>
+			<button id="pattern">Pattern</button>
+		</div>
+		<input id="input" type="text" autocorrect="off" autocapitalize="none" spellcheck="false" />
+		<div id="suggestions"></div>
 	</body>
 </html>
