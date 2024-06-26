@@ -2,7 +2,10 @@ import Solver from './Solver.js';
 const solutions = (await (await fetch('./solutions.txt')).text())
     .split('\n')
     .filter(Boolean)
-    .flatMap(line => line.split('\t').filter(Boolean));
+    .flatMap(line => line
+    .split('\t')
+    .filter(Boolean)
+    .map(w => w.trim()));
 const wordsAndRank = (await (await fetch('./words_ranked.txt')).text())
     .split('\n')
     .filter(Boolean)
