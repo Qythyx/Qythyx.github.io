@@ -7,6 +7,7 @@
 			import solver from './Loader.js';
 			const input = document.querySelector('#input');
 			const suggestions = document.querySelector('#suggestions');
+			const running = document.querySelector('#running');
 
 			function append(type, text) {
 				const ele = document.createElement(type);
@@ -28,11 +29,15 @@
 				}
 			}
 
-			function handleInput(keyboard, action) {
+			function handleInput(action) {
 				const process = () => {
-					action();
-					showSuggestions();
 					input.style.display = 'none';
+					running.style.display = 'block';
+					setTimeout(() => {
+						action();
+						showSuggestions();
+						running.style.display = 'none';
+					}, 10);
 				};
 				input.onkeydown = (event) => {
 					if (event.key === 'Enter') {
@@ -40,7 +45,6 @@
 					}
 				};
 				input.style.display = 'block';
-				input.type = keyboard;
 				input.value = '';
 				input.focus();
 			}
@@ -48,16 +52,16 @@
 			showSuggestions();
 
 			document.querySelector('#misplaced').onclick = () =>
-				handleInput('url', () => solver.SetIncorrectlyPositionedLetters(input.value));
+				handleInput(() => solver.SetIncorrectlyPositionedLetters(input.value));
 
 			document.querySelector('#positioned').onclick = () =>
-				handleInput('url', () => solver.SetPositionedLetters(input.value));
+				handleInput(() => solver.SetPositionedLetters(input.value));
 
 			document.querySelector('#excluded').onclick = () =>
-				handleInput('url', () => solver.SetExcludedLetters(input.value));
+				handleInput(() => solver.SetExcludedLetters(input.value));
 
 			document.querySelector('#pattern').onclick = () =>
-				handleInput('number', () =>
+				handleInput(() =>
 					solver.AddRequiredPattern(
 						input.value.split(',').map((pattern) => {
 							const pair = pattern.split('x');
@@ -82,7 +86,6 @@
 				font-size: 11pt;
 				margin: 0 -1px;
 				padding: 0;
-				/* text-indent: -6px; */
 			}
 
 			c {
@@ -118,6 +121,12 @@
 				margin: 0;
 			}
 
+			#running {
+				display: none;
+				font-size: 20pt;
+				text-align: center;
+			}
+
 			#suggestions {
 				max-height: 100vh;
 				overflow: auto;
@@ -131,7 +140,8 @@
 			<button id="excluded">Excluded</button>
 			<button id="pattern">Pattern</button>
 		</div>
-		<input id="input" type="text" autocorrect="off" autocapitalize="none" spellcheck="false" />
+		<input id="input" type="url" autocorrect="off" autocapitalize="none" spellcheck="false" />
+		<div id="running">⋯</div>
 		<div id="suggestions"></div>
 	</body>
 </html>
