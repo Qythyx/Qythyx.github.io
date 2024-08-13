@@ -30,18 +30,12 @@
 			}
 
 			function handleInput(action) {
-				const process = () => {
-					input.style.display = 'none';
-					running.style.display = 'block';
-					setTimeout(() => {
-						action();
-						showSuggestions();
-						running.style.display = 'none';
-					}, 10);
-				};
 				input.onkeydown = (event) => {
 					if (event.key === 'Enter') {
-						process();
+						input.style.display = 'none';
+						running.innerHTML = '⋯';
+						running.style.display = 'block';
+						action();
 					}
 				};
 				input.style.display = 'block';
@@ -49,26 +43,52 @@
 				input.focus();
 			}
 
+			function postProcess() {
+				showSuggestions();
+				running.style.display = 'none';
+			}
+
 			showSuggestions();
 
-			document.querySelector('#misplaced').onclick = () =>
-				handleInput(() => solver.SetIncorrectlyPositionedLetters(input.value));
+			document.querySelector('#misplaced').onclick = () => {
+				handleInput(() => {
+					solver.SetIncorrectlyPositionedLetters(input.value);
+					postProcess();
+				});
+			};
 
-			document.querySelector('#positioned').onclick = () =>
-				handleInput(() => solver.SetPositionedLetters(input.value));
+			document.querySelector('#positioned').onclick = () => {
+				handleInput(() => {
+					solver.SetPositionedLetters(input.value);
+					postProcess();
+				});
+			};
 
-			document.querySelector('#excluded').onclick = () =>
-				handleInput(() => solver.SetExcludedLetters(input.value));
+			document.querySelector('#excluded').onclick = () => {
+				handleInput(() => {
+					solver.SetExcludedLetters(input.value);
+					postProcess();
+				});
+			};
 
-			document.querySelector('#pattern').onclick = () =>
+			document.querySelector('#pattern').onclick = () => {
 				handleInput(() =>
 					solver.AddRequiredPattern(
 						input.value.split(',').map((pattern) => {
 							const pair = pattern.split('x');
 							return [pair[0], pair.length === 1 ? 1 : parseInt(pair[1])];
-						})
+						}),
+						(total, done) => {
+							const percent = ((done / total) * 100).toFixed(2);
+							running.innerHTML = `${done} of ${total} (${percent}%) ⋯`;
+							if (done === total) {
+								document.querySelector('#running').innerHTML = '';
+								postProcess();
+							}
+						}
 					)
 				);
+			};
 		</script>
 		<style>
 			* {
