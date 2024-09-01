@@ -3,7 +3,7 @@ const solutions = (await (await fetch('./solutions.txt', { cache: "no-store" }))
     .split('\n')
     .filter(Boolean)
     .flatMap(line => line
-    .split('\s+')
+    .split(/\s+/)
     .filter(Boolean)
     .map(w => w.trim()));
 const wordsAndRank = (await (await fetch('./words_ranked.txt')).text())
