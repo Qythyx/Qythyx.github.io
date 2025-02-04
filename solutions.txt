@@ -72,4 +72,4 @@ jelly	twist	brown	witch	slang	chock	hippo	dogma	mauve		guile	shaky	crypt	endow	s
 plumb	vying	boxer	drool	funky	boast	scowl	hefty	stray		flash	blade	brawn	sauna	eagle	share	affix	grain	decry
 mambo	stare	lemur	nerve	chose	cheap	relax	cyber	sprig		atlas	draft	wafer	crawl	dingy	total	cloak	fancy	knack
 flint	prose	silly	rower	squid	icing	reach	upper	crepe		crisp	sunny	shunt	fever	udder	false	toast	rivet	chore
-revue
+revue	tooth
